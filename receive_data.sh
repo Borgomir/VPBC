@@ -3,23 +3,14 @@ read type
 
 case $type in
   "1")
-    echo "Please input the name of the blockchain:"
-    read blockchain_name
+    echo "Please input the number of multichain blockchains created and setup:"
+    read number_blockchains
 
-    ./init_blockchain.sh "$blockchain_name"
-
-    blockchain_name2=0
+    ./test_init_blockchain.sh "$number_blockchains"
   ;;
   "2")
-    echo "Please input the name of the first blockchain:"
-    read blockchain_name
-
-    ./init_blockchain.sh "$blockchain_name"
-
-    echo "Please input the name of the second blockchain:"
-    read blockchain_name2
-
-    ./init_blockchain.sh "$blockchain_name2"
+    echo "Feature not implemented yet"
+    exit
   ;;
   *)
     echo "Wrong value"
@@ -30,18 +21,12 @@ esac
 echo "Please input the threshold for reconstructing the secret:"
 read t
 
-file_path="transacs.txt"
-file_path2="transacs2.txt"
 
+chain_name="testChain"
 
-
-if [ $type == 2 ]; then
-      multichain-cli "$blockchain_name" listwallettransactions > $file_path
-      multichain-cli "$blockchain_name2" listwallettransactions > $file_path2
-      python3 get_last_n_transactions.py "$file_path" "$file_path2" "$t" > string_shares.txt
-    else
-      multichain-cli "$blockchain_name" listwallettransactions > $file_path
-      python3 get_last_n_transactions.py "$file_path" "$t" > string_shares.txt
-fi
-
+multichain-cli "${chain_name}" listwallettransactions > "transacs.txt"
+for (( i = 1; i < $number_blockchains; i++ )); do
+    multichain-cli "${chain_name}$i" listwallettransactions > "transacs${i}.txt"
+done
+python3 get_last_n_transactions.py "$number_blockchains" "$t" > string_shares.txt
 python3 convert_hex_to_points_list.py

@@ -1,33 +1,40 @@
 import random
-from decimal import Decimal
+from fractions import Fraction
+from sympy import randprime
 
 FIELD_SIZE = 10 ** 5
+prime_size = 2048
+prime = randprime(2 ** (prime_size - 1), 2 ** prime_size)
+
 
 
 def reconstruct_secret(shares):
     """
-	Combines individual shares (points on graph)
-	using Lagranges interpolation.
+    Combines individual shares (points on graph)
+    using Lagrange's interpolation.
 
-	`shares` is a list of points (x, y) belonging to a
-	polynomial with a constant of our key.
-	"""
+    `shares` is a list of points (x, y) belonging to a
+    polynomial with a constant of our key.
+    `prime_size` is the size (in bits) of the randomly generated prime.
+    """
     sums = 0
-    prod_arr = []
 
     for j, share_j in enumerate(shares):
         xj, yj = share_j
-        prod = Decimal(1)
+        prod = Fraction(yj, 1)
 
         for i, share_i in enumerate(shares):
             xi, _ = share_i
             if i != j:
-                prod *= Decimal(Decimal(xi) / (xi - xj))
+                numerator = -xi
+                denominator = pow(xj - xi, -1, prime)
+                prod *= Fraction(numerator * denominator, 1)
 
-        prod *= Decimal(yj)
-        sums += Decimal(prod)
+        sums += prod
 
-    return int(round(Decimal(sums), 0))
+    return sums.numerator % prime
+
+
 
 
 def polynom(x, coefficients):
@@ -39,7 +46,8 @@ def polynom(x, coefficients):
     # Loop through reversed list, so that indices from enumerate match the
     # actual coefficient indices
     for coefficient_index, coefficient_value in enumerate(coefficients[::-1]):
-        point += x ** coefficient_index * coefficient_value
+        point += (x ** coefficient_index * coefficient_value) % prime
+
     return point
 
 

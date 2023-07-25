@@ -3,23 +3,14 @@ read type
 
 case $type in
   "1")
-    echo "Please input the name of the blockchain:"
-    read blockchain_name
+    echo "Please input the number of multichain blockchains created and setup:"
+    read number_blockchains
 
-    ./init_blockchain.sh "$blockchain_name"
-
-    blockchain_name2=0
+    ./init_blockchain.sh "$number_blockchains"
   ;;
   "2")
-    echo "Please input the name of the first blockchain:"
-    read blockchain_name
-
-    ./init_blockchain.sh "$blockchain_name"
-
-    echo "Please input the name of the second blockchain:"
-    read blockchain_name2
-
-    ./init_blockchain.sh "$blockchain_name2"
+    echo "Feature not implemented yet"
+    exit
   ;;
   *)
     echo "Wrong value"
@@ -36,4 +27,5 @@ read n
 echo "Please input the secret:"
 read secret
 
-./send_secret_normal_method.sh "$t" "$n" "$secret" "$blockchain_name" "$type" "$blockchain_name2"
+#./send_secret_normal_method.sh "$t" "$n" "$secret" "$number_blockchains" "$type"
+./send_secret_normal_method.sh "$t" "$n" "$secret" "$number_blockchains"
